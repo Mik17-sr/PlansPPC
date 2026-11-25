@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Savings
@@ -26,6 +27,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +45,16 @@ import com.example.plansppc.ui.components.AppDropdownMenu
 import com.example.plansppc.ui.components.DataTable
 import com.example.plansppc.ui.components.EmptyStateCard
 import com.example.plansppc.ui.components.FilterChipItem
+import com.example.plansppc.ui.components.FormCardSection
+import com.example.plansppc.ui.components.FormCheckboxRow
+import com.example.plansppc.ui.components.FormDatePickerField
+import com.example.plansppc.ui.components.FormFileUploadField
+import com.example.plansppc.ui.components.FormMultiSelectChips
+import com.example.plansppc.ui.components.FormPasswordInputField
+import com.example.plansppc.ui.components.FormRadioGroup
+import com.example.plansppc.ui.components.FormSlider
+import com.example.plansppc.ui.components.FormSwitchRow
+import com.example.plansppc.ui.components.FormTimePickerField
 import com.example.plansppc.ui.components.GradientBannerCard
 import com.example.plansppc.ui.components.IconButtonWithBadge
 import com.example.plansppc.ui.components.KeyValueRow
@@ -102,7 +114,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Tabs switcher to toggle between functionality and UI Catalog Showcase
         SegmentedControl(
             options = listOf("Mis Planes", "Catálogo UI Visual"),
             selectedIndex = selectedTab,
@@ -195,6 +206,14 @@ fun UICatalogView() {
     var inputTest by remember { mutableStateOf("") }
     var selectedMemberTest by remember { mutableStateOf("Jorge") }
 
+    // Estados para los nuevos componentes de formulario
+    var formChecked by remember { mutableStateOf(true) }
+    var formRadioSelected by remember { mutableStateOf("Mensual") }
+    var formSwitchState by remember { mutableStateOf(true) }
+    var formSliderVal by remember { mutableFloatStateOf(12f) }
+    var formMultiChips by remember { mutableStateOf(setOf("Viajes", "Educación")) }
+    var formPassword by remember { mutableStateOf("12345678") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -202,7 +221,7 @@ fun UICatalogView() {
             .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        CatalogSectionHeader("1. Búsqueda y Formularios")
+        CatalogSectionHeader("1. Búsqueda y Formularios Básicos")
         
         SearchInputField(
             query = searchQuery,
@@ -227,7 +246,61 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("2. Banners Promocionales y Gradientes")
+        CatalogSectionHeader("2. Controles de Formulario Avanzados")
+
+        FormCardSection(
+            title = "Ajustes y Parámetros del Plan",
+            icon = Icons.Default.EditNote
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                FormCheckboxRow(
+                    label = "Aceptar notificaciones del grupo",
+                    checked = formChecked,
+                    onCheckedChange = { formChecked = it },
+                    description = "Envía recordatorios automáticos de cuota mensual"
+                )
+
+                FormRadioGroup(
+                    title = "Frecuencia de Recaudo",
+                    options = listOf("Semanal", "Quincenal", "Mensual"),
+                    selectedOption = formRadioSelected,
+                    onOptionSelected = { formRadioSelected = it }
+                )
+
+                FormSwitchRow(
+                    title = "Alertas de Vencimiento",
+                    subtitle = "Notificar por correo cuando la meta esté cerca",
+                    checked = formSwitchState,
+                    onCheckedChange = { formSwitchState = it }
+                )
+
+                FormSlider(
+                    label = "Plazo Estimado",
+                    value = formSliderVal,
+                    valueRange = 1f..36f,
+                    onValueChange = { formSliderVal = it },
+                    valueFormatter = { "${it.toInt()} meses" }
+                )
+
+                FormMultiSelectChips(
+                    title = "Categorías de Ahorro",
+                    options = listOf("Viajes", "Educación", "Hogar", "Emergencias"),
+                    selectedOptions = formMultiChips,
+                    onOptionToggled = { chip ->
+                        formMultiChips = if (formMultiChips.contains(chip)) formMultiChips - chip else formMultiChips + chip
+                    }
+                )
+
+                FormDatePickerField(label = "Fecha de Inicio del Plan", selectedDate = "24/11/2026", onClick = {})
+                FormTimePickerField(label = "Hora de Recordatorio", selectedTime = "09:00 AM", onClick = {})
+                FormFileUploadField(label = "Adjuntar Comprobante", fileName = "Abono_Familia.pdf", onUploadClick = {})
+                FormPasswordInputField(label = "Clave de Autorización", value = formPassword, onValueChange = { formPassword = it })
+            }
+        }
+
+        HorizontalDivider(color = CardBorder)
+
+        CatalogSectionHeader("3. Banners Promocionales y Gradientes")
 
         GradientBannerCard(
             title = "¡Ahorro Familiar 2026!",
@@ -238,7 +311,7 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("3. Botones y Chips de Selección")
+        CatalogSectionHeader("4. Botones y Chips de Selección")
 
         PrimaryButton(text = "Botón Primario", onClick = {}, icon = Icons.Default.Add)
         SecondaryButton(text = "Botón Secundario", onClick = {})
@@ -255,7 +328,7 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("4. Tarjetas Visuales y Acciones Rápida")
+        CatalogSectionHeader("5. Tarjetas Visuales y Acciones Rápida")
 
         MetricCard(
             title = "Total Recaudado Global",
@@ -287,7 +360,7 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("5. Badges de Estado y Progreso")
+        CatalogSectionHeader("6. Badges de Estado y Progreso")
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StatusBadge(text = "Completado")
@@ -303,7 +376,7 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("6. Tablas e Historial de Transacciones")
+        CatalogSectionHeader("7. Tablas e Historial de Transacciones")
 
         TransactionRow(memberName = "Jorge", date = "Hoy, 10:30 AM", amount = "500.000")
         TransactionRow(memberName = "Ana", date = "Ayer, 4:15 PM", amount = "500.000")
@@ -332,7 +405,7 @@ fun UICatalogView() {
 
         HorizontalDivider(color = CardBorder)
 
-        CatalogSectionHeader("7. Notificaciones y Banners")
+        CatalogSectionHeader("8. Notificaciones y Banners")
 
         MessageBanner(message = "¡Operación completada exitosamente!")
         MessageBanner(message = "Atención: Verifique el monto ingresado", isError = true)
